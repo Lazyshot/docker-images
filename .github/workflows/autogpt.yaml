@@ -37,7 +37,6 @@ jobs:
             type=sha
             type=semver,pattern={{version}},prefix=v
             type=semver,pattern={{version}},prefix=autogpt-platform-beta-
-            type=raw,format={{timestamp}}
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
