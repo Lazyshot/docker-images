@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,16 +20,31 @@ jobs:
         with:
           fetch-depth: 0
           repository: 'Significant-Gravitas/AutoGPT'
-          ref: 'main'
+          ref: 'autogpt-platform-beta-v0.6.1'
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/metadata-action@v4
+        id: meta
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/autogpt/${{ matrix.dockerfile.image }}
+          context: git
+          tags: |
+            type=ref,event=branch
+            type=sha
+            type=semver,pattern={{version}},prefix=v
+            type=semver,pattern={{version}},prefix=autogpt-platform-beta-
+            type=raw,format={{timestamp}}
       - name: Build and push Docker image
-        run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/autogpt/${{ matrix.dockerfile.image }} -f ${{ matrix.dockerfile.path }} .
-          docker push ghcr.io/${{ github.repository_owner }}/autogpt/${{ matrix.dockerfile.image }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ${{ matrix.dockerfile.path }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
 
