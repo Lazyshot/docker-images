@@ -1,0 +1,34 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dockerfile:
+          - path: autogpt_platform/backend/Dockerfile
+            image: backend
+          - path: autogpt_platform/frontend/Dockerfile
+            image: frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          repository: 'Significant-Gravitas/AutoGPT'
+          ref: 'main'
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/autogpt/${{ matrix.dockerfile.image }} -f ${{ matrix.dockerfile.path }} .
+          docker push ghcr.io/${{ github.repository_owner }}/autogpt/${{ matrix.dockerfile.image }}
+
+
