@@ -1,3 +1,5 @@
+name: Build and Push AutoGPT Docker Images
+
 on:
   push:
     branches:
