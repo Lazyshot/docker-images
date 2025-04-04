@@ -16,6 +16,7 @@ jobs:
             image: backend
           - path: autogpt_platform/frontend/Dockerfile
             image: frontend
+            target: dev
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -47,5 +48,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          target: ${{ matrix.dockerfile.target }}
 
 
